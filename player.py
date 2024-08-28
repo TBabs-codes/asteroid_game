@@ -4,12 +4,13 @@ from constants import *
 from shot import *
 
 class Player(CircleShape):
-    def __init__(self, x, y):
+    def __init__(self, image, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
         self.position = pygame.Vector2(x,y)
         self.rotation = 180
         self.timer = 0
-        self.cooldown_disabled = False
+        self.image = image
+        self.rect = self.image.get_rect(center = self.position)
 
     # in the player class
     def triangle(self):
@@ -21,10 +22,16 @@ class Player(CircleShape):
         return [a, b, c]
     
     def draw(self, screen):
-        pygame.draw.polygon(screen, (255,255,255), self.triangle(), 2)
+        #pygame.draw.polygon(screen, (255,255,255), self.triangle(), 2)
+        
+        rotated_image = pygame.transform.rotate(self.image, -self.rotation)
+        rotated_rect = rotated_image.get_rect(center = self.position)
+        screen.blit(rotated_image, rotated_rect)
 
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED*dt
+        #self.image = pygame.transform.rotate(self.image, self.rotation)
+        
 
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -45,8 +52,8 @@ class Player(CircleShape):
             self.shoot()
         
     def shoot(self):
-        if self.timer < 0 or self.cooldown_disabled == True:
-            shot = Shot(self.position[0],self.position[1])
+        if self.timer < 0 or PLAYER_SHOOT_COOLDOWN_DISABLED:
+            shot = Shot(self.image, self.rotation, self.position[0],self.position[1])
             shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
             self.timer = PLAYER_SHOOT_COOLDOWN
         
