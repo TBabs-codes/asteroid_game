@@ -7,6 +7,12 @@ from asteroidfield import *
 from shot import *
 from score_display import *
 
+def write_hiscore(score, hiscore):
+    if score > hiscore:
+        with open("hiscore.txt", 'w') as file:
+            file.write(f"{score}")
+
+
 def main():
     print("Starting asteroids!")
     pygame.init()
@@ -19,6 +25,11 @@ def main():
     clock = pygame.time.Clock() 
     dt = 0
     score = 0
+
+    #Set Hi-score text
+    hiscore = 0
+    with open("hiscore.txt", "r") as f:
+        hiscore = int(f.readlines()[0])
     
 
     #Setup Font
@@ -55,6 +66,7 @@ def main():
         for asteroid in asteroids:
             if asteroid.collision(player1):
                 print("Game over!")
+                write_hiscore(score, hiscore)
                 sys.exit()
 
             #Shots-asteroid collision check
@@ -76,12 +88,16 @@ def main():
 
         # Render the score text
         score_text = f"Score: {score}"
+        hiscore_text = f"Hiscore: {hiscore}"
         text_surface = font.render(score_text, True, text_color)
+        hiscore_text_surface = font.render(hiscore_text, True, text_color)
         score_text_rect = text_surface.get_rect(topleft=(10, 10))
+        hiscore_text_rect = hiscore_text_surface.get_rect(topleft=(SCREEN_WIDTH-200, 10))
 
         #Draws score text
         screen.blit(text_surface, score_text_rect)
-        
+        screen.blit(hiscore_text_surface, hiscore_text_rect)
+
         pygame.display.flip()
         dt = clock.tick(60)/1000
 
